@@ -21,8 +21,6 @@ exports.selcomWebhook = async (req, res) => {
       amount
     } = req.body;
 
-    console.log('Selcom webhook received:', req.body);
-
     // Extract Charla transaction ID from order_id (format: CHARLA-123)
     const orderParts = order_id.split('-');
     if (orderParts.length < 2) {

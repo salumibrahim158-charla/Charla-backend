@@ -138,19 +138,11 @@ const handleMpesaCallback = async (req, res) => {
   if (output_ResponseCode === 'INS-0') {
     // Payment successful
     // Update wallet balance in database
-    console.log('Payment success:', output_TransactionID);
-    
-    // TODO: Update database
     // await updateWalletBalance(output_ConversationID, 'completed');
-  } else {
     // Payment failed
-    console.log('Payment failed:', output_ResponseCode);
     
-    // TODO: Update database
     // await updateWalletBalance(output_ConversationID, 'failed');
-  }
 
-  res.status(200).json({ success: true });
 };
 
 module.exports = {
