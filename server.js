@@ -9,10 +9,8 @@ const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 const winston = require('winston');
 const { healthCheck } = require('./config/database');
-
 // Initialize Express app
 const app = express();
-
 // Configure logger
 const logger = winston.createLogger({
     level: process.env.LOG_LEVEL || 'info',
@@ -31,19 +29,14 @@ const logger = winston.createLogger({
         new winston.transports.File({ filename: 'logs/combined.log' })
     ]
 });
-
 // ============================================================================
 // MIDDLEWARE
-// ============================================================================
-
 // Security headers
 app.use(helmet());
-
 // CORS configuration
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
     ? process.env.ALLOWED_ORIGINS.split(',') 
     : ['http://localhost:3000'];
-
 app.use(cors({
     origin: (origin, callback) => {
         if (!origin || allowedOrigins.includes(origin)) {
@@ -54,14 +47,11 @@ app.use(cors({
     },
     credentials: true
 }));
-
 // Body parsing
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
 // Compression
 app.use(compression());
-
 // Rate limiting
 const limiter = rateLimit({
     windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
@@ -69,9 +59,7 @@ const limiter = rateLimit({
     message: 'Too many requests from this IP, please try again later.',
     standardHeaders: true,
     legacyHeaders: false,
-});
 app.use('/api/', limiter);
-
 // Request logging
 app.use((req, res, next) => {
     logger.info(`${req.method} ${req.path}`, {
@@ -79,12 +67,7 @@ app.use((req, res, next) => {
         userAgent: req.get('user-agent')
     });
     next();
-});
-
-// ============================================================================
 // ROUTES
-// ============================================================================
-
 // Health check endpoint
 app.get('/health', async (req, res) => {
     const dbHealth = await healthCheck();
@@ -94,12 +77,8 @@ app.get('/health', async (req, res) => {
         uptime: process.uptime(),
         database: dbHealth,
         environment: process.env.NODE_ENV || 'development'
-    });
-});
-
 // API version endpoint
 app.get('/api', (req, res) => {
-    res.json({
         name: 'Charla Medics API',
         version: '1.0.0',
         description: 'Healthcare platform for Tanzania',
@@ -111,10 +90,6 @@ app.get('/api', (req, res) => {
             doctors: '/api/v1/doctors',
             wallet: '/api/v1/wallet',
             referrals: '/api/v1/referrals'
-        }
-    });
-});
-
 // Mount API routes
 const authRoutes = require('./routes/auth.routes');
 const userRoutes = require('./routes/user.routes');
@@ -122,27 +97,19 @@ const bookingRoutes = require('./routes/booking.routes');
 const doctorRoutes = require('./routes/doctor.routes');
 const walletRoutes = require('./routes/wallet.routes');
 const referralRoutes = require('./routes/referral.routes');
-
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/bookings', bookingRoutes);
 app.use('/api/v1/doctors', doctorRoutes);
 app.use('/api/v1/wallet', walletRoutes);
 app.use('/api/v1/referrals', referralRoutes);
-
-// ============================================================================
 // ERROR HANDLING
-// ============================================================================
-
 // 404 handler
 app.use((req, res) => {
     res.status(404).json({
         success: false,
         message: 'Endpoint not found',
         path: req.path
-    });
-});
-
 // Global error handler
 app.use((err, req, res, next) => {
     logger.error('Error occurred:', {
@@ -150,8 +117,6 @@ app.use((err, req, res, next) => {
         stack: err.stack,
         path: req.path,
         method: req.method
-    });
-
     // JWT errors
     if (err.name === 'UnauthorizedError') {
         return res.status(401).json({
@@ -159,51 +124,45 @@ app.use((err, req, res, next) => {
             message: 'Invalid or expired token'
         });
     }
-
     // Validation errors
     if (err.name === 'ValidationError') {
         return res.status(400).json({
-            success: false,
             message: 'Validation failed',
             errors: err.errors
-        });
-    }
-
     // Database errors
     if (err.code === '23505') { // Unique violation
         return res.status(409).json({
-            success: false,
             message: 'Resource already exists'
-        });
-    }
-
     // Default error response
     res.status(err.status || 500).json({
-        success: false,
         message: err.message || 'Internal server error',
         ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
-    });
-});
-
-// ============================================================================
 // SERVER STARTUP
-// ============================================================================
-
 const PORT = process.env.PORT || 5000;
-
 app.listen(PORT, () => {
     logger.info(`🚀 Charla Medics API running on port ${PORT}`);
     logger.info(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
     logger.info(`🔗 Health check: http://localhost:${PORT}/health`);
-});
-
 // Graceful shutdown
 process.on('SIGTERM', () => {
     logger.info('SIGTERM signal received: closing HTTP server');
     server.close(() => {
         logger.info('HTTP server closed');
         process.exit(0);
-    });
-});
-
 module.exports = app;
+const adminRoutes = require('./routes/admin.routes');
+const certificateRoutes = require('./routes/certificate.routes');
+const facilityRoutes = require('./routes/facility.routes');
+const homecollectionRoutes = require('./routes/homecollection.routes');
+const paymentRoutes = require('./routes/payment.routes');
+const prescriptionRoutes = require('./routes/prescription.routes');
+const ussdRoutes = require('./routes/ussd.routes');
+const webhookRoutes = require('./routes/webhook.routes');
+app.use('/api/v1/admin', adminRoutes);
+app.use('/api/v1/certificates', certificateRoutes);
+app.use('/api/v1/facilities', facilityRoutes);
+app.use('/api/v1/home-collection', homecollectionRoutes);
+app.use('/api/v1/payments', paymentRoutes);
+app.use('/api/v1/prescriptions', prescriptionRoutes);
+app.use('/api/v1/ussd', ussdRoutes);
+app.use('/api/v1/webhook', webhookRoutes);
