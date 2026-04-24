@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const prescriptionController = require('../controllers/prescription.controller');
-const { authenticate } = require('../middleware/auth');
+const { protect } = require('../middleware/auth.middleware');
 
 // All routes require authentication
-router.use(authenticate);
+router.use(protect);
 
 /**
  * @route   POST /api/prescriptions

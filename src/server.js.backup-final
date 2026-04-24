@@ -130,10 +130,6 @@ const homeCollectionRoutes = require('./routes/homecollection.routes');
 const facilityRoutes = require('./routes/facility.routes');
 const paymentRoutes = require('./routes/payment.routes');
 const webhookRoutes = require('./routes/webhook.routes');
-const prescriptionRoutes = require('./routes/prescription.routes');
-const medicalhistoryRoutes = require('./routes/medicalhistory.routes');
-const phlebotomistRoutes = require('./routes/phlebotomist.routes');
-const moderationRoutes = require('./routes/moderation.routes');
 const ussdRoutes = require('./routes/ussd.routes');
 
 app.use('/api/v1/auth', authRoutes);
@@ -150,10 +146,6 @@ app.use('/api/v1/facilities', facilityRoutes);
 app.use('/api/v1/payments', paymentRoutes);
 app.use('/api/v1/webhooks', webhookRoutes);
 app.use('/api/v1/ussd', ussdRoutes);
-app.use('/api/v1/prescriptions', prescriptionRoutes);
-app.use('/api/v1/medical-history', medicalhistoryRoutes);
-app.use('/api/v1/phlebotomist', phlebotomistRoutes);
-app.use('/api/v1/moderation', moderationRoutes);
 // ============================================================================
 // ERROR HANDLING
 // ============================================================================
